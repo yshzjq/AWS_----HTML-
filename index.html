@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="버튼을 누를 때마다 숫자가 올라가는 간단한 클릭 카운터" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>클릭 카운터</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f172a'/%3E%3Cpath d='M32 16v32M16 32h32' stroke='%2338bdf8' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: #07111f;
+        color: #f8fafc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 20% 15%, rgba(56, 189, 248, 0.2), transparent 34%),
+          radial-gradient(circle at 80% 85%, rgba(129, 140, 248, 0.2), transparent 36%),
+          #07111f;
+      }
+
+      main {
+        width: min(100%, 440px);
+        text-align: center;
+      }
+
+      .counter-card {
+        position: relative;
+        padding: clamp(34px, 8vw, 56px);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 32px;
+        background: rgba(15, 23, 42, 0.78);
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+        backdrop-filter: blur(18px);
+      }
+
+      .eyebrow {
+        margin: 0 0 14px;
+        color: #7dd3fc;
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+
+      #count {
+        display: block;
+        margin-bottom: 34px;
+        font-size: clamp(5.5rem, 24vw, 9rem);
+        font-weight: 800;
+        line-height: 0.95;
+        letter-spacing: -0.07em;
+        font-variant-numeric: tabular-nums;
+        text-shadow: 0 0 32px rgba(56, 189, 248, 0.18);
+      }
+
+      #count.bump {
+        animation: bump 180ms ease-out;
+      }
+
+      .multiplier {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 6px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 16px;
+        background: rgba(2, 6, 23, 0.52);
+      }
+
+      .multiplier-button {
+        min-height: 44px;
+        border: 0;
+        border-radius: 11px;
+        color: #94a3b8;
+        background: transparent;
+        font: inherit;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: color 140ms ease, background 140ms ease, transform 140ms ease;
+      }
+
+      .multiplier-button:hover {
+        color: #e0f2fe;
+        background: rgba(56, 189, 248, 0.1);
+      }
+
+      .multiplier-button[aria-pressed="true"] {
+        color: #082f49;
+        background: #bae6fd;
+        box-shadow: 0 6px 18px rgba(56, 189, 248, 0.22);
+      }
+
+      .multiplier-button:active {
+        transform: scale(0.97);
+      }
+
+      #count-button {
+        width: 100%;
+        min-height: 64px;
+        border: 0;
+        border-radius: 18px;
+        color: #082f49;
+        background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+        box-shadow: 0 12px 30px rgba(56, 189, 248, 0.28);
+        font: inherit;
+        font-size: 1.1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #count-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(56, 189, 248, 0.35);
+        filter: brightness(1.05);
+      }
+
+      #count-button:active {
+        transform: translateY(1px) scale(0.99);
+      }
+
+      button:focus-visible {
+        outline: 3px solid #f8fafc;
+        outline-offset: 5px;
+      }
+
+      @keyframes bump {
+        50% {
+          transform: scale(1.08);
+          color: #7dd3fc;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="counter-card" aria-labelledby="counter-title">
+        <p class="eyebrow" id="counter-title">CLICK COUNTER</p>
+        <output id="count" aria-live="polite" aria-atomic="true">0</output>
+        <div class="multiplier" role="group" aria-label="카운트 증가 단위">
+          <button class="multiplier-button" type="button" data-step="1" aria-pressed="true">×1</button>
+          <button class="multiplier-button" type="button" data-step="10" aria-pressed="false">×10</button>
+          <button class="multiplier-button" type="button" data-step="100" aria-pressed="false">×100</button>
+        </div>
+        <button id="count-button" type="button">CLICK</button>
+      </section>
+    </main>
+
+    <script>
+      const countOutput = document.querySelector("#count");
+      const countButton = document.querySelector("#count-button");
+      const multiplierButtons = document.querySelectorAll(".multiplier-button");
+      let count = 0;
+      let step = 1;
+
+      function incrementCount() {
+        count += step;
+        countOutput.value = count;
+        countOutput.textContent = count;
+
+        countOutput.classList.remove("bump");
+        void countOutput.offsetWidth;
+        countOutput.classList.add("bump");
+        return count;
+      }
+
+      multiplierButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          step = Number(button.dataset.step);
+          multiplierButtons.forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+        });
+      });
+
+      countButton.addEventListener("click", incrementCount);
+
+      if (document.modelContext?.registerTool) {
+        const toolLifecycle = new AbortController();
+
+        try {
+          void Promise.resolve(
+            document.modelContext.registerTool(
+              {
+                name: "increment_counter",
+                title: "카운트 올리기",
+                description: "현재 선택된 증가 단위만큼 화면의 카운터 값을 올립니다.",
+                inputSchema: {
+                  type: "object",
+                  properties: {},
+                  additionalProperties: false,
+                },
+                annotations: {
+                  readOnlyHint: false,
+                  untrustedContentHint: false,
+                },
+                execute(input) {
+                  if (
+                    input === null ||
+                    typeof input !== "object" ||
+                    Array.isArray(input) ||
+                    Object.keys(input).length > 0
+                  ) {
+                    throw new TypeError("입력값은 빈 객체여야 합니다.");
+                  }
+
+                  return { count: incrementCount(), step };
+                },
+              },
+              { signal: toolLifecycle.signal },
+            ),
+          ).catch(() => {});
+        } catch {
+          // WebMCP를 지원하지 않거나 등록에 실패해도 버튼은 정상 동작합니다.
+        }
+      }
+    </script>
+  </body>
+</html>
